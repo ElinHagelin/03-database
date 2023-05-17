@@ -8,7 +8,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "guestbook": "node guestbook.js"
+    "guestbook": "node guestbook.js",
+    "review": "node bookReview.js"
   },
   "repository": {
     "type": "git",

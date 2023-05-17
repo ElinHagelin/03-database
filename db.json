@@ -1,8 +1,11 @@
 {
-	"exempel": true,
-	"data": [
-		1,
-		2,
-		3
-	]
+  "exempel": true,
+  "data": [
+    1,
+    2,
+    3
+  ],
+  "guestbook": [
+    "Elin"
+  ]
 }

@@ -1,31 +1,26 @@
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
-import { Low } from 'lowdb'
-import { JSONFile } from 'lowdb/node'
-import { question } from 'readline-sync'
+import getQuestion from './getQuestion.js'
+import getData from './getData.js'
 
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const file = join(__dirname, 'db.json')
-const adapter = new JSONFile(file)
-const db = new Low(adapter, [])
+const db = getData('db.json', [])
 
 await db.read()
 db.data.guestbook = []
+const [question, close] = getQuestion()
 
-function menu() {
+async function menu() {
 	console.log('\nWelcome to the guestbook\n');
 
 	console.log('[1] Add your name');
 	console.log('[2] View the guestbook');
 	console.log('[3] Exit');
 
-	let pick = question('\nChoose an option: ')
+	let pick = await question('\nChoose an option: ')
 
 	if (pick === '1') {
-		let name = question('\nWhat is your name? ')
+		let name = await question('\nWhat is your name? ')
 		db.data.guestbook.push(name)
-		db.write()
+		await db.write()
 	} else if (pick === '2') {
 		if (db.data.guestbook.length === 0) {
 			console.log('\nThe guestbook is empty');
@@ -35,6 +30,7 @@ function menu() {
 			console.log(name);
 		});
 	} else if (pick === '3') {
+		close()
 		return
 	}
 

@@ -1,25 +1,23 @@
-import getData from './getData.js';
-import getQuestion from './getQuestion.js'
+import { addProductToCart, changeAmount } from './cart.js';
+import getData from '../getData.js';
+import getQuestion from '../getQuestion.js'
+import { addProduct, changeProduct, removeProduct, viewProducts } from './products.js';
 
-const db = getData('shop.json', {})
+const db = await getData('/webshop/shop.json', {})
 await db.read()
-db.data.products = []
-
-// Visa alla produkter. (get)
-// Lägg till en ny produkt. (*post)
-// Ändra en befintlig produkt. (*put)
-// Ta bort en produkt. (*delete)
-// Visa kundvagnen. (get)
-// Lägg till en produkt till kundvagnen. (post)
-// Ändra antalet av en viss produkt i kundvagnen. (put)
-// Ta bort en produkt ur kundvagnen. (delete)
-
-let product = {
-	name: 'hammare', String,
-	price: 99, Number,
-	id: 44, Number
-	// Och amount: 1, Number, när den hamnar i kundkorgen.
+if (!db.data.products && !db.data.cart) {
+	db.data.products = []
+	db.data.cart = []
 }
+const [question, close] = getQuestion()
+
+
+// let product = {
+// 	name: 'hammare', String,
+// 	price: 99, Number,
+// 	id: 44, Number
+// 	// Och amount: 1, Number, när den hamnar i kundkorgen.
+// }
 
 async function webShop() {
 	console.log('\nWelcome to the shop\n');
@@ -39,37 +37,70 @@ async function webShop() {
 	if (pick === '1') {
 
 		console.log('\n');
-		if (db.data.products.length === 0) {
-			console.log('No products yet...');
-		}
-		db.data.products.forEach(({ name, price }) => {
-			console.log(`${name}, ${price}:-`)
-		});
+		viewProducts(db.data.products, 'products')
 
 	}
 	else if (pick === '2') {
 
-		let name = await question('\nProduct to add: ')
-		let price = await question('\nPrice of the product: ')
-		let id = Math.floor(Math.random() * 100) + 1
-
-		let product = { name, price, id }
-		db.data.products.push(product)
+		await addProduct(db.data.products)
 
 		await db.write()
 	} else if (pick === '3') {
+		console.log('\nChoose the id of the product you want to change: \n');
 
-		console.log('\nChoose the number of the product you want to change: \n');
+		viewProducts(db.data.products, 'products')
 
-		db.data.products.forEach(({ name, price }) => {
-			console.log(`${id} ${name}, ${price}:-`)
-		});
-		const change = await question('\nNumber: ')
-		const newName = await question('\nWhat should the products name be? ')
-		const newPrice = await question('\nWhat should the products price be? ')
+		const change = await question('\nId: ')
+		const newName = await question('\nSet new name for product: ')
+		const newPrice = await question('\nSet new price for product: ')
 
-		db.data.products.find(product => product.id == change).name = newName
+		changeProduct(db.data.products, change, newName, newPrice)
 
 		await db.write()
+	} else if (pick === '4') {
+		console.log('\nChoose the id of the product you want to remove: \n');
+
+		viewProducts(db.data.products, 'products')
+		const remove = await question('\nNumber: ')
+
+		removeProduct(db.data.products, remove)
+
+		await db.write()
+	} else if (pick === '5') {
+
+		console.log('\nCart: \n');
+		viewProducts(db.data.cart, 'cart')
+
+	} else if (pick === '6') {
+		console.log('\n');
+		viewProducts(db.data.products, 'products')
+
+		const productChoice = await question('\nChoose the id of the product you want to add to the cart: ')
+
+		addProductToCart(db.data.products, db.data.cart, productChoice)
+
+		await db.write()
+	} else if (pick === '7') {
+		console.log('\nCart: \n');
+		viewProducts(db.data.cart, 'cart')
+
+		const productChoice = await question('\nChoose the id of the product you want to change the amount of: ')
+		await changeAmount(db.data.cart, productChoice)
+
+		await db.write()
+	} else if (pick === '8') {
+		console.log('\nCart: \n');
+		viewProducts(db.data.cart, 'cart')
+
+		const productChoice = await question('\nChoose the id of the product you want to remove: ')
+		removeProduct(db.data.cart, productChoice)
+
+		await db.write()
+	} else if (pick === '9') {
+		close()
+		return
 	}
+	webShop()
 }
+
+webShop()

@@ -9,7 +9,8 @@
   "type": "module",
   "scripts": {
     "guestbook": "node guestbook.js",
-    "review": "node bookReview.js"
+    "review": "node bookReview.js",
+    "shop": "node webshop/shop.js"
   },
   "repository": {
     "type": "git",
